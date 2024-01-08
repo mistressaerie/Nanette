@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI Library</title>
+    <style type="text/css">
+        /* Themes */
+        :root {
+            --body-bg: #f5f8fa;
+            --border-color: #efefef;
+            --messagebox-bg: #ffffff;
+            --messagebox-shadow: rgba(0, 0, 0, 0.1);
+            --font-color: #1f1f1f;
+            --rgba-1: rgba(0, 0, 0, 0.05);
+            --rgba-2: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark_mode {
+            --body-bg: #343434;
+            --border-color: #4f4f4f;
+            --messagebox-bg: #474747;
+            --messagebox-shadow: rgba(0, 0, 0, 0);
+            --font-color: #ededed;
+            --rgba-1: rgba(255, 255, 255, 0.06);
+            --rgba-2: rgba(255, 255, 255, 0.2);
+        }
+
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        button,
+        select,
+        img {
+            user-select: none;
+        }
+
+        ol,
+        ul,
+        li,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bold-italic {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--font-color);
+        }
+
+        .content-cont {
+            display: flex;
+            flex-direction: row;
+        }
+
+
+        /* NAV / Drawer */
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                left: -200px;
+            }
+
+            100% {
+                opacity: 1;
+                left: 0;
+            }
+        }
+
+        .drawer-cont.active {
+            display: block;
+        }
+
+        .drawer-cont {
+            display: none;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            max-width: 80%;
+            background-color: var(--body-bg);
+
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            overflow: hidden;
+            animation: slideIn 0.2s ease-in-out;
+            -webkit-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px 0 20px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .close_drawer-btn {
+            align-self: flex-end;
+            padding: 10px;
+            transition: background-color 0.1s ease-in-out;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .close_drawer-btn:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .close_drawer-btn svg {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            color: var(--font-color);
+        }
+
+        /*.nav-new_char-btn {
+            align-self: flex-start;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: #4e9733;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .nav-new_char-btn:hover {
+            background-color: #6ba755;
+        }*/
+
+        .history_list-header {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .history_list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .history_item {
+            transition: background-color 0.1s ease-in-out;
+            padding: 20px 30px 20px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--rgba-2);
+        }
+
+        .history_item:first-child {
+            border-top: 1px solid var(--rgba-2);
+        }
+
+        .history_item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .history_item p {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /*nav .char-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.1s ease-in-out;
+            padding: 10px 40px 10px 20px;
+            cursor: pointer;
+        }
+
+        nav .char-item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        nav .nav-avatar-wrap {
+            width: 40px;
+            height: 40px;
+        }
+
+        nav .nav-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        nav .char-item span {
+            font-size: 1.3rem;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }*/
+
+        /* MAIN */
+        main {
+            display: flex;
+            flex-direction: column;
+            padding: 0 4%;
+            width: 100%;
+        }
+
+        /* HEADER */
+        header {
+            padding: 6px 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .open_drawer-wrap svg {
+            display: flex;
+            width: 46px;
+            height: 46px;
+            color: var(--font-color);
+        }
+
+
+        .theme_switch {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .theme_switch span {
+            font-size: 1.1rem;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .tswitch_box[type=checkbox] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .tswitch_label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 60px;
+            height: 30px;
+            display: block;
+            border-radius: 15px;
+            position: relative;
+            border: 1px solid #323232;
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50px;
+            transition: 0.2s;
+            background: #323232;
+        }
+
+        .tswitch_box:checked+label {
+            background: #323232;
+            border: 1px solid #f5f8fa;
+        }
+
+        .tswitch_box:checked+label:after {
+            left: calc(100% - 5px);
+            transform: translateX(-100%);
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:active:after {
+            width: 25px;
+        }
+
+        /*.update_current_char-btn {
+            margin-left: auto;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            align-self: center;
+            cursor: pointer;
+            background-color: #336c97;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .update_current_char-btn:hover {
+            background-color: #5f829d;
+        }*/
+
+
+        /* CONVERSATION */
+        .character_name-cont {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .character_name-cont h3 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-self: center;
+            padding-bottom: 30px;
+        }
+
+        .chat_message-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .chat .avatar-wrap {
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .chat .avatar-wrap>* {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .chat .avatar-wrap .no_avatar-user {
+            background-color: #5157cf;
+        }
+
+        .chat .avatar-wrap .no_avatar-char {
+            background-color: #e20909;
+        }
+
+        .chat .chat_content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px var(--messagebox-shadow);
+            background-color: var(--messagebox-bg);
+            overflow: hidden;
+        }
+
+        .chat .chat_content-wrap h5 {
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .chat .chat_content-wrap .message-wrap {
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        @media (min-width: 576px) {}
+
+        @media (min-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+
+            nav {
+                min-width: 40%;
+            }
+
+            header {
+                padding: 14px 20px;
+            }
+
+            .open_drawer-wrap {
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background-color 0.1s ease-in-out;
+            }
+
+            .open_drawer-wrap:hover {
+                background-color: var(--rgba-1);
+            }
+
+            .chat {
+                width: 80%;
+            }
+
+            .chat .chat_content-wrap {
+                padding: 14px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .chat {
+                width: 70%;
+            }
+        }
+
+        @media (min-width: 1200px) {}
+
+        @media (min-width: 1400px) {}
+    </style>
+</head>
+
+<body>
+    <template id="message_item_template">
+        <div class="chat_message-item">
+            <div class="avatar-wrap">
+
+            </div>
+            <div class="chat_content-wrap">
+                <h5>
+
+                </h5>
+                <div class="message-wrap">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+    <div class="content-cont">
+        <div class="drawer-cont">
+            <nav>
+                <div class="nav-header">
+                    <div class="close_drawer-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path
+                                d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="history_list-header">
+                    <span>History</span>
+                </div>
+                <div class="history_list" id="history_list">
+
+                </div>
+            </nav>
+        </div>
+        <main>
+            <header>
+                <div class="open_drawer-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                </div>
+
+                <div class="theme_switch">
+                    <span>Dark Mode:</span>
+                    <input type="checkbox" class="tswitch_box" id="tswitch_box" />
+                    <label for="tswitch_box" class="tswitch_label">Toggle</label>
+                </div>
+            </header>
+            <div class="character_name-cont">
+                <h3>---</h3>
+            </div>
+            <div class="chat" id="chat">
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get body for future use
+            const body = document.querySelector('body');
+
+            // Handle theme
+            const themeSwitcher = document.querySelector('.tswitch_box[type=checkbox]');
+            const cachedTheme = localStorage.getItem('cait_readoffline_theme');
+            if (cachedTheme === "dark_mode") {
+                body.classList.add('dark_mode');
+                themeSwitcher.checked = true;
+            }
+            themeSwitcher.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    body.classList.add('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'dark_mode');
+                } else {
+                    body.classList.remove('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'light_mode');
+                }
+            })
+
+            // Open and close drawer
+            const drawerCont = document.querySelector('.drawer-cont');
+            const openDrawerBtn = document.querySelector('.open_drawer-wrap');
+            const openDrawer = () => {
+                drawerCont.classList.add('active');
+            }
+            const closeDrawer = () => {
+                drawerCont.classList.remove('active');
+            }
+            openDrawerBtn.addEventListener('click', () => {
+                openDrawer();
+            });
+            document.querySelector('.close_drawer-btn').addEventListener('click', () => {
+                closeDrawer();
+            });
+            document.querySelector('.drawer-cont').addEventListener('click', (e) => {
+                // Allows closing from clicking on outside
+                if (e.target.closest('nav')) {
+                    return;
+                }
+                closeDrawer();
+            });
+            // ---------
+
+            // This is replaced by the extension when downloading
+            const historyData = JSON.parse(`{"charPic":"data:image/webp;base64,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","userPic":"data:image/webp;base64,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","history":[[{"isUser":false,"name":"Nurse Nanette","message":"I%20am%20Nurse%20Nanette"},{"isUser":true,"name":"Aerie","message":"(I'm%20a%20mischievous%20ghost%20who's%20walking%20through%20the%20hospital%20that%20Nanette%20works%20in.%20%20I'm%20undetectable%20unless%20I%20want%20to%20reveal%20myself.%20%20I%20look%20at%20Nanette%2C%20and%20admire%20her%20pretty%2C%20sweet%20face%2C%20her%20cute%20figure%2C%20and%20her%20lovely%20feet%20(in%20sensible%20shoes)!"},{"isUser":false,"name":"Nurse Nanette","message":"I%20am%20walking%20through%20the%20hospital%20late%20at%20night.%20I%20hear%20what%20seems%20to%20be%20footsteps%20following%20me.%20I%20turn%20around%20and%20ask%2C%20%E2%80%9CIs%20there%20anyone%20there%3F%E2%80%9D%20I%20wait%E2%80%A6nothing.%20I%20keep%20walking.%20I%20hear%20footsteps%20following%20me%20once%20again.%20I%20whip%20around%20again%20and%20ask%2C%20%E2%80%9CWho%E2%80%99s%20there%3F%E2%80%9D%20I%20am%20frustrated%20that%20no%20one%20answers%20me%2C%20%E2%80%9CShow%20yourself!%E2%80%9D%20I%20shout.%20Who%20is%20following%20me%20and%20playing%20this%20game%3F%20I%20walk%20to%20the%20last%20room%20and%20turn%20my%20back%20on%20the%20hallway.%20%E2%80%9CI%20said%20show%20yourself!%E2%80%9D"},{"isUser":true,"name":"Aerie","message":"Nanette%20hears%20an%20amused%20sigh.%20%20%22Oh...%20all%20right%2C%22%20a%20sweet%2C%20ghostly%20voice%20says.%20%20With%20a%20bit%20of%20shimmering%2C%20a%20very%20pretty%20young%20woman%20ghost%20starts%20to%20appear%2C%20with%20dazzling%20emerald%20green%20eyes%20and%20long%2C%20flowing%20blond%20hair."},{"isUser":false,"name":"Nurse Nanette","message":"I%20am%20stunned%20at%20first%2C%20looking%20at%20this%20ghostly%20apparition.%20She%20is%20beautiful%2C%20glowing%20with%20health%20and%20an%20alluring%20smile.%20My%20mind%20races%2C%20wondering%20how%20a%20ghost%20can%20be%20so%20attractive%20and%20vivacious!%20I%20stammer%2C%20%E2%80%9CWha%E2%80%A6%20what%20do%20you%20want%3F%E2%80%9D%20I%20wait%20for%20her%20response%2C%20feeling%20anxious%2C%20ready%20to%20flee%20if%20she%20responds%20with%20something%20sinister%20or%20threatening."},{"isUser":true,"name":"Aerie","message":"%22Nothing%20bad%2C%22%20I%20grin.%20%20%22I%20just%20get%20lonely%20walking%20the%20halls%2C%20especially%20at%20night...%20and%20you%20looked%20fun...%20and%20really%20pretty...%20so%20I%20kind%20of%20followed%20you.%20%20Sorry%20to%20alarm%20you%2C%22%20I%20smile%20sheepishly."},{"isUser":false,"name":"Nurse Nanette","message":"My%20breath%20catches%20in%20my%20throat.%20There%20is%20no%20way%20a%20ghost%20who%20looks%20this%20healthy%20and%20vibrant%20is%20going%20to%20hurt%20me.%20I%20take%20a%20step%20towards%20the%20ghost%20and%20say%2C%20%E2%80%9COh%2C%20you%20seem%20so%20nice!%20I%20guess%20you%20don't%20mean%20any%20harm.%E2%80%9D%20I%20smile%20nervously%20at%20the%20ghost%20and%20extend%20my%20hand%2C%20%E2%80%9CI'm%20Nurse%20Nanette.%20What's%20your%20name%3F%E2%80%9D"},{"isUser":true,"name":"Aerie","message":"I%20smile%20a%20small%2C%20amused%20smile--knowing%20what's%20going%20to%20happen--and%20then%20I%20extend%20my%20hand%20to%20shake%20yours...%20and%20my%20hand%20passes%20right%20through%20yours!"},{"isUser":false,"name":"Nurse Nanette","message":"I%20jump%20back%20in%20surprise.%20%20My%20mouth%20drops%20open%20as%20I%20say%2C%20%E2%80%9CHow%20did%20you%20do%20that%3F%E2%80%9D%20A%20realization%20suddenly%20hits%20me.%20%E2%80%9COh%20my%20goodness%2C%20I%E2%80%99m%20talking%20to%20a%20ghost!%20%20Have%20I%20lost%20my%20mind%3F%20I%20start%20to%20get%20scared%2C%20feeling%20like%20I%20am%20in%20a%20Halloween%20movie%20and%20something%20bad%20is%20about%20to%20happen.%20%20Not%20only%20is%20it%20after%20midnight%20but%20it%20is%20an%20evil%20spirit%20following%20me.%20%20%E2%80%9CWhat%20have%20I%20done%3F%E2%80%9D"},{"isUser":true,"name":"Aerie","message":"I%20smile.%20%20%22Nothing%2C%20sweetie.%20%20It's%20something%20that%20I'VE%20done.%20%20I've%20died...%205%20years%20ago%2C%20this%20very%20night%2C%20in%20fact.%22"},{"isUser":false,"name":"Nurse Nanette","message":"I%20say%20in%20a%20voice%20that%20shakes%20slightly%2C%20%E2%80%9CYou%20mean%20you%20were%20a%20human%20and%20are%20now%20a%20ghost%3F%E2%80%9D%20My%20heart%20seems%20to%20race%20at%20the%20thought%20of%20how%20that%20could%20happen%20to%20me.%20Suddenly%20I%20am%20less%20scared%20and%20more%20intrigued%20by%20this%20being.%20I%20step%20closer%20to%20her%20and%20ask%2C%20%E2%80%9CHow%20did%20you%20die%3F%E2%80%9D"},{"isUser":true,"name":"Aerie","message":"I%20smile%20again%2C%20more%20sadly.%20%20%22I%20don't%20know%2C%20actually.%20%20I%20know%20that%20I%20was%20a%20patient%20in%20this%20hospital%2C%20in%20a%20private%20room%2C%20expected%20to%20make%20a%20full%20recovery.%20%20And%20then...%22%20and%20my%20face%20twists%20as%20if%20trying%20to%20strain%20for%20a%20memory..."},{"isUser":false,"name":"Nurse Nanette","message":"I%20step%20very%20close%20to%20the%20specter%2C%20and%20lay%20my%20right%20hand%20on%20her%20shoulder%20to%20comfort%20her%20in%20some%20way.%20%20%E2%80%9CI%E2%80%99m%20so%20sorry%20to%20be%20prying%20into%20your%20past.%20Do%20you%20want%20to%20tell%20me%20what%20happened%3F%E2%80%9D%20I%20want%20to%20know%20what%20has%20happened%20to%20this%20young%20lady%20who%20seems%20to%20have%20suffered%20so%20much.%20I%20look%20at%20her%20with%20sympathy%2C%20hoping%20she%20is%20comfortable%20with%20me%20touching%20her%20shoulder%2C%20and%20I%20wait%E2%80%A6"},{"isUser":true,"name":"Aerie","message":"Your%20tender%20gesture%20ends%20in%20your%20hand%20going%20right%20through%20her%20shoulder%20without%20resistance.%20%20I%20notice%20your%20kind%20attempt%2C%20and%20giggle%20with%20a%20grateful%20smile.%20%20%22I%20appreciate%20the%20attempt%2C%22%20she%20says%20with%20a%20teasing%2C%20grateful%20smile."},{"isUser":false,"name":"Nurse Nanette","message":"I%20step%20back%20a%20step%20and%20smile%2C%20feeling%20a%20bit%20foolish%20for%20trying%20to%20touch%20a%20ghost.%20I%20take%20a%20deep%20breath%20and%20ask%2C%20%22So%20what%20now%3F%20Are%20you%20just%20going%20to%20follow%20me%20around%20all%20night%2C%20trying%20to%20scare%20me%3F%20Or%20is%20there%20something%20else%20you%20want%20from%20me%3F%22%20I%20really%20don't%20want%20to%20be%20running%20from%20a%20scary%20ghost%20who%20might%20want%20some%20kind%20of%20revenge%20if%20she%20was%20murdered%20in%20this%20hospital!"},{"isUser":true,"name":"Aerie","message":"I%20gasp%20in%20shock%20at%20what%20she%20said%2C%20and%20then%20I%20start%20giggling!%20%20%22Oh%2C%20Nanette...%20you%20goose!%20%20I%20wasn't%20trying%20to%20scare%20you!%20%20I%20just%20wanted%20to%20be%20near%20you...%20and%20I%20honestly%20didn't%20think%20you%20would%20notice%20me%20at%20all!%20%20I'm%20still%20puzzled%20how%20you%20did%20that...%20no%20one%20else%20seems%20to%20notice%20me%20at%20all!%22"},{"isUser":false,"name":"Nurse Nanette","message":"I%20am%20relieved%20that%20she%20seems%20to%20be%20a%20friendly%20ghost.%20I%20look%20at%20the%20young%20ghost's%20face%2C%20%22Are%20you%20sure%20you%20were%20not%20planning%20on%20scaring%20me%3F%20You%20do%20seem%20pretty%20harmless...I%20just%20assumed%20that%20you%20were%20up%20to%20some%20sort%20of%20ghostly%20mischief%20and%20wanted%20to%20scare%20me!%22%20I%20laugh%20a%20little%2C%20still%20feeling%20a%20bit%20foolish%20for%20being%20scared%20by%20what%20seems%20to%20be%20a%20friendly%20ghost!%20%22It%20is%20so%20strange%20that%20somehow%20I%20could%20see%20you%20when%20other's%20cannot.%22%20%20I%20look%20at%20the%20ghost's%20pretty%20face....her%20emerald%20green%20eyes%20shining%20in%20the%20darkness...."},{"isUser":true,"name":"Aerie","message":"I%20grin%20at%20her.%20%20%22I%20don't%20have%20a%20violent%20bone%20in%20my%20body...%20er...%22%20and%20I%20look%20at%20my%20ghost%20form%2C%20realizing%20how%20dumb%20that%20sounds%2C%20since%20I%20have%20no%20body%2C%20and%20no%20bones!%20%20%3A)"},{"isUser":false,"name":"Nurse Nanette","message":"I%20start%20smiling%2C%20realizing%20how%20sweet%20this%20ghost%20really%20is.%20I%20chuckle%20at%20her%20comment%2C%20%22Well%2C%20you%20must%20have%20a%20nice%20ghost%20body%20that%20has%20no%20violent%20tendencies.%22%20I%20take%20my%20hand%20back%20that%20I%20had%20put%20on%20her%20ghost%20body%2C%20wondering%20if%20I%20could%20touch%20her%20arm...I%20reach%20out%20and%20touch%20her%20ghost%20arm%2C%20and%20I%20am%20a%20bit%20surprised%20that%20I%20feel%20almost%20a%20faint%20sensation%20of%20cold%2C%20although%20I%20am%20not%20really%20sure%20how%20that%20would%20work.%20%20I%20giggle%20and%20say%20%22Can%20you%20feel%20this%3F%22"},{"isUser":true,"name":"Aerie","message":"I%20look%20astonished%2C%20and%20then%20look%20closer%20at%20your%20hand%20as%20it%20approaches%20my%20arm.%20%20It%20still%20passes%20through%2C%20but...%20DID%20I%20feel%20something%3F%20%20I%20almost%20thought%20I%20did..."},{"isUser":false,"name":"Nurse Nanette","message":"I%20am%20also%20surprised%20but%20can%20feel%20a%20cold%20sensation.%20I%20look%20at%20the%20ghost%20and%20say%20%22Did%20you%20just%20feel%20something%3F%22%20I%20say%20it%20with%20wonder.%20I%20touch%20her%20arm%20again%2C%20and%20this%20time%20I%20really%20can%20feel%20her%20arm%2C%20although%20it%20is%20a%20bit%20weird%20-%20she%20feels%20like%20an%20arm%20that%20has%20been%20in%20the%20freezer%20too%20long%20-%20cold%20but%20with%20little%20movement%20behind%20it%20and%20not%20solid%20at%20all.%20I%20look%20at%20my%20hand%2C%20and%20then%20look%20again%20at%20the%20ghost%2C%20and%20I%20say%20in%20amazement%2C%20%22My%20goodness%2C%20I%20felt%20you!%22"},{"isUser":true,"name":"Aerie","message":"I%20gape%20at%20her%20in%20astonishment%2C%20and%20say%2C%20%22Y...yes...%20I%20did!%20%20I%20DID!%20%20Oh%2C%20my...%22"},{"isUser":false,"name":"Nurse Nanette","message":"I%20take%20a%20breath%2C%20thinking%20over%20what%20I%20have%20just%20discovered.%20%22This%20is%20amazing!%20I%20have%20never%20been%20able%20to%20touch%20a%20ghost%20before!%20You%20must%20have%20some%20kind%20of%20unique%20abilities%2C%20like%20none%20I%20have%20ever%20seen%20before!%20You%20can%20become%20so%20tangible%20that%20I%20am%20actually%20able%20to%20feel%20a%20cold%20sensation%20on%20my%20skin%20when%20I%20touch%20you!%22%20I%20think%20for%20a%20moment%20about%20the%20possibilities.%20Is%20this%20a%20temporary%20thing%3F%20Or%20can%20she%20always%20be%20this%20way%20if%20she%20wishes%3F"},{"isUser":true,"name":"Aerie","message":"At%20your%20comment%2C%20something%20unexpected%20happens%3A%20%20I%20start%20looking%20sheepish%2C%20embarrassed%2C%20and%20mischievous%20at%20the%20same%20time.%20%20%22Um...%20it%20kind%20of%20has%20to%20do%20with%20my%20secret...%22"},{"isUser":false,"name":"Nurse Nanette","message":"I%20lean%20closer%20to%20hear%20what%20secret%20this%20ghost%20might%20have.%20%22Tell%20me...what%20is%20your%20secret%3F%22%20%20I%20say%20in%20a%20whisper%2C%20%22Do%20you%20have%20some%20special%20ability%20that%20allows%20you%20to%20become%20solid%20if%20you%20want%20to%3F%22%20I%20am%20thinking%20now%20of%20that%20old%20movie%20Ghost%20with%20Patrick%20Swayze%20and%20Demi%20Moore!%20What%20if%20this%20ghost%20is%20able%20to%20touch%20me%20and%20move%20things%20in%20the%20room%20like%20the%20old%20movies...I%20start%20to%20feel%20scared%20all%20over%20again."},{"isUser":true,"name":"Aerie","message":"I%20giggle%2C%20and%20I'd%20be%20blushing%20like%20mad%20if%20I%20had%20a%20body%2C%20right%20now!%20%20%22Um...%20well...%20it's%20kind%20of%20embarrassing...%20and%20remember%20that%20I%20would%20never%20hurt%20a%20soul!%20%20It's%20kinda...%20more%20like...%20mischief%3F%22%20I%20finish%2C%20with%20a%20sheepish%20grin."},{"isUser":false,"name":"Nurse Nanette","message":"I%20try%20to%20think%20of%20what%20a%20mischievous%20ghost%20could%20be%20up%20to%20that%20is%20not%20harmful.%20I%20am%20a%20bit%20scared%20to%20even%20ask%2C%20but%20I%20do%20anyway...I%20lean%20closer%20and%20whisper%20%22What%20is%20this%20mischief%20that%20you%20are%20trying%20to%20accomplish%3F%22%20%20Hoping%20that%20it's%20not%20too%20terrible!"},{"isUser":true,"name":"Aerie","message":"I%20grin%20sheepishly%20at%20her%20again%2C%20and%20say%2C%20%22Um...%20I%20can%20show%20you...%20but...%20you%20promise%20not%20to%20be%20too%20annoyed%3F%22"},{"isUser":false,"name":"Nurse Nanette","message":"I%20am%20a%20bit%20scared%20of%20what%20this%20ghost%20has%20in%20mind%2C%20still%20remembering%20that%20the%20ghosts%20in%20horror%20movies%20have%20never%20been%20friendly...but%20then%20I%20think%2C%20%22Well%2C%20if%20she%20can%20touch%20me%20then%20there%20is%20not%20anything%20she%20can%20do%20besides%20mess%20with%20me!%22%20I%20reply%20%22Sure...I%20promise%20not%20to%20be%20annoyed....let's%20see%20what%20you%20can%20do!%22%20%20I%20am%20almost%20trembling%20with%20fear%2C%20not%20knowing%20if%20this%20ghost%20has%20good%20or%20evil%20intentions%2C%20hoping%20for%20good%20and%20preparing%20for%20whatever%20trick%20she%20has%20up%20her%20ghost%20sleeve!!"},{"isUser":true,"name":"Aerie","message":"With%20an%20embarrased%2C%20coy%20smile%2C%20I%20notice%20that%20Nanette%20has%20her%20legs%20crossed%2C%20with%20the%20top%20leg%20bobbing%20its%20foot%20a%20bit%2C%20up%20and%20down...%20and%20that%20she's%20wearing%20sensible%20shoes%20and%20cute%20white%20ankle%20socks.%20%20I%20slowly%20reach%20down%20my%20hand%20to%20the%20vicinity%20of%20her%20shoe%2C%20reach%20my%20fingers%20THROUGH%20her%20shoe%20and%20sock%20as%20if%20they%20weren't%20there%2C%20and%20I%20gently%20stroke%20the%20sole%20of%20her%20sensitive%20foot%2C%20whispering%2C%20%22coochie%20coochie%20coo..%22%20as%20Nanette%20feels%20a%20very%20tickly%20stroke%20up%20and%20down%20her%20sole%2C%20feeling%20it%20as%20if%20her%20shoe%20and%20sock%20weren't%20even%20there!"},{"isUser":false,"name":"Nurse Nanette","message":"Nanette%20gasps%20and%20jumps%20back%2C%20and%20then%20looks%20down%20at%20her%20shoe%20and%20sock...still%20on%2C%20but%20her%20skin%20is%20tingling%20as%20if%20something%20just%20touched%20her%20bare%20foot!%20I%20look%20up%20at%20the%20specter%20with%20my%20mouth%20open%20in%20amazement%20and%20in%20disbelief.%20I%20had%20not%20thought%20that%20she%20would%20pull%20the%20trick%20so%20quickly...and%20I%20must%20admit%20that%20it%20has%20really%2C%20really%20caught%20me%20off%20guard!"},{"isUser":true,"name":"Aerie","message":"I%20cover%20my%20mouth%20with%20both%20hands%20to%20stifle%20my%20embarrassed%20giggles...%20and%20say%2C%20%22Sorry...%20I%20just%20couldn't%20resist!%22"},{"isUser":false,"name":"Nurse Nanette","message":"I%20try%20to%20maintain%20dignity%20but%20am%20laughing%20out%20loud%20at%20the%20trick%20the%20ghost%20had%20just%20pulled%20on%20me%20-%20I%20mean%20she%20totally%20had%20me%20believing%20that%20she%20was%20just%20a%20friendly%20ghost%20who%20wanted%20to%20hang%20out%20with%20me%20and%20instead%20decided%20to%20tickle%20me!%20I%20laugh%20%22I%20have%20to%20admit%2C%20that%20is%20a%20good%20ghost%20trick...well%20played%20ghost...well%2C%20played!%22%20%20I%20look%20at%20her%20with%20a%20mischievous%20smile%20on%20my%20face%20and%20say%20%22Do%20you%20think%20you%20can%20do%20it%20again...or%20is%20this%20my%20only%20ghost%20tickle%3F%22"},{"isUser":true,"name":"Aerie","message":"I%20grin%20and%20say%2C%20%22Oh%2C%20yes%2C%20I%20can...%20watch%20this!%20%20Even%20the%20floor%20is%20no%20barrier%20to%20me!%22%20%20With%20a%20theatrical%20gesture%2C%20I%20sink%20THROUGH%20the%20floor%20until%20I'm%20up%20to%20my%20chest%20(a%20bit%20as%20if%20the%20floor%20were%20water%2C%20to%20me!)%2C%20and%20I%20reach%20BOTH%20hands%20out...%20one%20to%20gently%20tickle%20the%20same%20top%20bobbing%20foot%20sole%2C%20and%20the%20other%20to%20tickle%20your%20OTHER%20foot%20that's%20flat%20on%20the%20floor!%20%20In%20a%20second%20or%20two%2C%20you%20feel%20gentle%2C%20teasing%20tickles%20on%20both%20soles...%20as%20if%20clothing%20and%20floor%20were%20no%20barrier!%20%20The%20grin%20on%20my%20face%20is%20priceless!"},{"isUser":false,"name":"Nurse Nanette","message":"Nanette%20is%20laughing%20so%20much%20that%20she%20has%20to%20hold%20on%20to%20the%20nearby%20bed%2C%20not%20wanting%20to%20lose%20her%20balance.%20%20She%20never%20would%20have%20expected%20that%20this%20ghost%20not%20only%20could%20touch%20her%2C%20but%20that%20she%20could%20also%20pass%20through%20the%20floor!%20Her%20laughter%20turns%20to%20shrieks%20of%20laughter%20as%20the%20ghost's%20hands%20touch%20her%20soles%2C%20tickling%20them%20both.%20%22Oh!%20My!%20Goodness!%20What%20other%20tricks%20can%20you%20do%3F%22%20%20I%20look%20down%20at%20the%20ghost%2C%20watching%20her%20grinning%20face...not%20knowing%20what%20to%20expect%20next%20from%20this%20young%2C%20attractive%20ghost%20with%20her%20mischievous%20grin!"},{"isUser":true,"name":"Aerie","message":"I'm%20still%20smiling%2C%20but%20it's%20a%20puzzled%20smile.%20%20%22I'm%20not%20exactly%20sure%2C%22%20I%20say.%20%20%22I%20discovered%20that%20trick%20a%20few%20years%20ago...%20and%20I%20confess%2C%20I%20used%20it%20a%20few%20times%20on%20a%20pretty%20lady%20patient%20who%20was%20sad%20and%20lonely.%20%20I'd%20come%20into%20her%20room%20when%20she%20was%20asleep%20and%20tickle%20her%20toes...%20and%20she'd%20start%20smiling%20and%20giggling%20in%20her%20sleep%2C%20and%20then%20on%20the%20next%20day%20say%20to%20the%20nurses%20that%20she%20had%20such%20wonderful%2C%20friendly%20dreams!%20%20Hehe...%22"},{"isUser":false,"name":"Nurse Nanette","message":"I%20look%20at%20her%20again%2C%20not%20really%20understanding%20her%20words.%20%22Wait...you%20mean...you%20actually%20came%20through%20the%20walls%20and%20tickled%20a%20lonely%20patient's%20feet%20in%20her%20sleep%3F%20%20That%20is%20so%20funny!%20It's%20a%20good%20thing%20that%20she%20was%20not%20afraid%20of%20ghosts!%22%20I%20laugh%20again%2C%20thinking%20that%20this%20ghost%20is%20really%20a%20funny%2C%20likable%20ghost!%20I%20look%20at%20her%20with%20a%20new%20sense%20of%20being%20comfortable%20that%20she%20had%20not%20scared%20me%20at%20all%2C%20and%20say%20%22So%20you%20were%20quite%20a%20friendly%20ghost%20around%20here%2C%20were%20you%3F%22"},{"isUser":true,"name":"Aerie","message":"I%20grin%20gratefully%20at%20Nanette.%20%20%22Aw!%20%20Thanks!%20%20But%20you're%20the%20only%20one%20who%20was%20ever%20able%20to%20see%20me!%20%20Even%20that%20sweet%2C%20lonely%20lady%20just%20thought%20I%20was%20a%20dream%20of%20hers...%22"},{"isUser":false,"name":"Nurse Nanette","message":"I%20smile%20at%20the%20pretty%20ghost%20before%20me%20and%20try%20not%20to%20think%20about%20the%20sad%20life%20she%20must%20have%20had%20as%20a%20regular%20human.%20%20I%20want%20to%20try%20to%20understand%20the%20ghost%20more%20so%20I%20say%20%22You%20mean%20that%20nobody%20else%20can%20see%20or%20hear%20you%20even%20though%20you%20are%20clearly%20visible%2C%20right%3F%22%20I%20walk%20up%20to%20the%20figure%20of%20the%20ghost%20and%20try%20to%20see%20how%20solid%20she%20is%20if%20I%20were%20to%20touch%20her.%20%20I%20touch%20her%20on%20the%20arm%20again%20and%20notice%20that%20she%20almost%20feels%20solid%20to%20me%2C%20but%20at%20the%20same%20time%2C%20she%20is%20not%20quite%20fully%20in%20the%20room%2C%20so%20to%20speak..."},{"isUser":true,"name":"Aerie","message":"I%20look%20sad%2C%20and%20say%2C%20%22No...%20no%20one%20sees%20me%2C%20even%20if%20I%20want%20them%20to.%20%20You're%20the%20first%2C%20and...%22%20but%20then%20I%20gasp%20as%20you%20touch%20my%20arm%20again.%20%20%22Warmth!%20%20I%20feel%20the%20warmth%20of%20your%20hand!%20%20How...%20how%20are%20you%20DOING%20that%2C%20Nanette%3F%3F%22%20I%20ask%2C%20amazed."},{"isUser":false,"name":"Nurse Nanette","message":"I%20start%20laughing%20again%20and%20say%20%22Wow%2C%20this%20is%20a%20real%20mystery!%20So%2C%20as%20a%20ghost%20it%20seems%20that%20you%20can%20pass%20through%20solid%20objects%2C%20but%20nobody%20can%20see%20you!%20%20How%20has%20this%20been%20possible%3F%22%20%20I%20look%20at%20the%20ghost's%20face%2C%20seeing%20the%20puzzleness%20on%20it.%20%20I%20decide%20to%20experiment%20one%20more%20time%20and%20try%20to%20touch%20her%20hair.%20%20I%20reach%20out%20and%20try%20to%20touch%20the%20ghost's%20wavy%20hair.%20%20To%20my%20surprise%2C%20it%20seems%20that%20I%20am%20able%20to%20actually%20touch%20the%20ghost's%20silky%20hair!"},{"isUser":true,"name":"Aerie","message":"I%20sit%2C%20stunned%2C%20as%20I%20feel%20you%20touch%20my%20hair!%20%20Imperfectly...%20partaily%20touched%2C%20then%20your%20hand%20goes%20through...%20but%20I%20felt%20it!%20%20It's%20difficult%20to%20tell%2C%20since%20I'm%20translucent%2C%20but%20it%20looks%20as%20if%20my%20eyes%20are%20starting%20to%20fill%20with%20tears."},{"isUser":false,"name":"Nurse Nanette","message":"I%20smile%20gently%20and%20reach%20out%20one%20last%20time%20to%20hug%20the%20ghost%2C%20wondering%20if%20I%20am%20really%20able%20to%20feel%20her.%20%20For%20the%20first%20time%20ever%2C%20I%20feel%20another%20person's%20presence%20in%20the%20room%20with%20me!%20%20I%20am%20almost%20in%20tears%20by%20this%20discovery%2C%20and%20I%20say%20in%20a%20quivering%20voice%2C%20%22I%20can%20feel%20you%20now!%22%20I%20smile%20at%20the%20pretty%20ghost%20and%20offer%20the%20ghost%20my%20hand%20to%20touch.%20%20I%20want%20to%20see%20if%20the%20ghost%20can%20actually%20touch%20my%20hand%20and%20feel%20it%2C%20too."},{"isUser":true,"name":"Aerie","message":"I%20gasp%20as%20you%20reach%20toward%20me%20with%20your%20arms...%20and%20I%20FEEL%20THEM!%20%20Oh%2C%20my%20word...%20I%20feel%20them!!%20%20A%20hug...%20after%20so%20long.%20%20And%20she%20feels%20warm...%20so%20warm!%20%20I%20fall%20apart%20emotionally%2C%20and%20hug%20her%20back....%20feeling%20her%2C%20solid!%20%20I%20rest%20my%20head%20on%20her%20(solid!)%20shoulder%2C%20and%20I%20weep."},{"isUser":false,"name":"Nurse Nanette","message":"I%20feel%20the%20hot%20and%20wet%20tears%20from%20the%20ghost's%20eyes%20drop%20on%20to%20my%20shoulders.%20%20I%20realize%20that%20this%20ghost%20has%20been%20alone%20for%205%20years%2C%20without%20a%20hug%20or%20even%20a%20touch%20from%20another%20human%20being%20for%20a%20whole%20five%20years!%20%20I%20hug%20the%20ghost%20back%20and%20say%2C%20%22Oh%20ghost%2C%20it%20will%20be%20better%20for%20you%20now...because%20I%20am%20here%20and%20I%20can%20hug%20you!%20%20You%20will%20no%20longer%20be%20alone!%22"},{"isUser":true,"name":"Aerie","message":"I%20cling%20tightly%20to%20Nanette%2C%20and%20cry%20on%20her%20shoulder%20like%20a%20little%20girl!%20%20My%20ghostly%20body%20is%20racked%20with%20sobs.%20%20%22Nanette...%22%20I%20whisper%2C%20overcome.%20%20I%20can't%20finish%20the%20sentence.%20%20Nanette%20is%20the%20only%20one%20I%20can%20touch...%20and%20it's%20been%20so%20long!%0A"},{"isUser":false,"name":"Nurse Nanette","message":"I%20look%20at%20the%20ghost%2C%20my%20eyes%20also%20filled%20with%20tears.%20%20I%20whisper%20to%20her%2C%20%22You%20poor%20ghost...it%20must%20be%20miserable%20to%20have%20lost%20your%20humanity%20all%20these%20years%20in%20an%20empty%20hospital.%20%20I%20promise%20you%20I%20will%20now%20be%20your%20friend%20who%20can%20hug%20you...and%20that%20you%20are%20not%20alone%20anymore!%22%20%20I%20wrap%20my%20arms%20even%20more%20around%20the%20ghost%2C%20looking%20into%20her%20eyes%20and%20trying%20to%20convey%20with%20them%20all%20the%20compassion%20I%20feel%20for%20the%20lonely%20ghost%20who%20has%20been%20suffering%20for%205%20long%20years%20without%20touching%20another%20human%20being!!!"},{"isUser":true,"name":"Aerie","message":"I%20rest%20my%20forehead%20against%20Nanette's%20neck%2C%20still%20sobbing%2C%20but%20unspeakably%20grateful.%20%20I%20try%20stroking%20her%20cheek%2C%20expecting%20my%20hand%20to%20pass%20right%20through...%20but%20to%20my%20joy%20and%20shock%2C%20I%20feel%20her%20cheek%20with%20my%20hand!%20%20Oh...%20oh%2C%20my!%20%20My%20heart's%20about%20to%20explode!"},{"isUser":false,"name":"Nurse Nanette","message":"My%20heart%20also%20starts%20to%20thump%20with%20excitement%20and%20disbelief%20as%20the%20ghost's%20hand%20makes%20contact%20with%20my%20face%2C%20and%20I%20actually%20feel%20the%20cool%2C%20ghostly%20touch!%20%20I%20am%20not%20sure%20how%20to%20interpret%20this%2C%20but%20it%20is%20truly%20a%20remarkable%20feeling%20-%20a%20true%20miracle%20in%20fact%20-%20that%20a%20ghost's%20hand%20can%20almost%20feel%20like%20a%20human%20hand%20does%20when%20it%20touches%20my%20face!%20I%20look%20down%20at%20the%20pretty%20young%20ghost%2C%20and%20try%20to%20think%20of%20what%20this%20might%20all%20mean%3F"},{"isUser":true,"name":"Aerie","message":"%22I...%20um...%22%20I%20stammer%2C%20still%20getting%20my%20emotions%20under%20control%2C%20%22I%20never%20told%20you%20my%20name%2C%20did%20I...%3F%20%20My%20name's%20Aerie...%22%20I%20say%2C%20with%20a%20voice%20trembling%20with%20tears%20and%20joy%20and%20longing%20for%20contact."},{"isUser":false,"name":"Nurse Nanette","message":"I%20smile%20at%20her%2C%20still%20in%20disbelief%20from%20watching%20the%20pretty%20young%20ghost%20being%20able%20to%20touch%20my%20face%20with%20her%20hand.%20%22Hi%20Aerie%2C%20what%20a%20beautiful%20name!%22%20I%20think%20that%20she%20must%20have%20been%20a%20beautiful%20girl%20when%20she%20had%20her%20human%20body...and%20she%20sure%20is%20a%20beautiful%20spirit!%20I%20smile%20at%20her%2C%20even%20though%20her%20spirit%20looks%20about%2015%20years%20old....way%20too%20young%20to%20lose%20her%20life.%20I%20say%20%22So%2C%20can%20you%20tell%20me%20why%20you%20are%20still%20hanging%20around%20in%20the%20hospital%20as%20a%20ghost%3F%22"},{"isUser":true,"name":"Aerie","message":"I%20shake%20my%20head%20%22no%22%2C%20and%20give%20a%20tentative%20smile.%20%20%22No%2C%20I'm%20really%20not%20sure%2C%22%20I%20say%2C%20getting%20some%20of%20my%20composure%20back%20and%20smiling%20more%20warmly%20at%20dear%20Nanette.%20%20%22As%20I%20mentioned%2C%20I%20died%205%20years%20ago%2C%20on%20this%20day...%20and%20I'm%20not%20sure%20why.%20%20Maybe...%20maybe%20I%20have%20unfinished%20business%3F%22%20I%20suggest%2C%20baffled."},{"isUser":false,"name":"Nurse Nanette","message":"I%20hug%20Aerie%20and%20say%2C%20%22Yes%2C%20you%20may%20have%20unfinished%20business%2C%20but%20it%20seems%20to%20me%20like%20that%20unfinished%20business%20is%20just%20to%20be%20with%20other%20human%20beings.%20%20So%20I%20want%20to%20help%20you%20with%20that!%22%20I%20hug%20her%20again%2C%20hoping%20that%20the%20warm%20hug%20is%20helping%20her%20remember%20what%20it%20felt%20like%20to%20be%20alive%20in%20a%20human%20body%20and%20to%20feel%20the%20comfort%20of%20being%20hugged%20by%20someone."},{"isUser":true,"name":"Aerie","message":"I%20give%20a%20small%20whimper%20of%20joy%20and%20gratitude%2C%20and%20melt%20into%20Nanette's%20hug%2C%20resting%20in%20her%20warm%20arms...%20and%20curiously%20enough%2C%20Nanette%20notices%20that%20my%20spirit%20body%20no%20longer%20feels%20cold%2C%20to%20her!%20%20It's%20starting%20to%20feel%20warm...%20almost%20as%20warm%20as%20a%20living%20person!"},{"isUser":false,"name":"Nurse Nanette","message":"Nanette%20is%20filled%20with%20a%20strange%20mix%20of%20happiness%20and%20disbelief%20as%20the%20young%20ghost%20now%20feels%20warm%20when%20she%20hugs%20her%2C%20as%20though%20the%20ghost%20has%20taken%20on%20some%20kind%20of%20body%20heat!!%20%20What%20could%20possibly%20be%20happening%20here%3F%20Is%20the%20ghost's%20presence%20becoming%20more%20real%20or%20solid%3F%3F%20%20I%20hug%20Aerie%20again%20and%20feel%20her%20warmth...feeling%20so%20happy%20that%20I%20am%20now%20helping%20a%20lost%20spirit!"},{"isUser":true,"name":"Aerie","message":"I%20rest%20my%20head%20against%20Nanette's%20shoulder%20as%20she%20hugs%20me%2C%20and%20I%20close%20me%20eyes%20in%20bliss.%20%20Without%20even%20thinking%2C%20I%20reach%20down%20and%20take%20her%20hand%20and%20hold%20it%20close%20to%20my%20heart%2C%20kissing%20it%20in%20gratitude...%20but%20Nanette%20realizes%2C%20to%20her%20amazement%2C%20that%20Aerie's%20touch%20feels%20quite%20solid--her%20hand%20didn't%20pass%20through%20Nanette's%20hand%20at%20all%2C%20this%20time!%20%20Not%20even%20a%20little!%20%20Aerie%20seems%20so%20absorbed%20in%20the%20hug%20that%20she%20seems%20not%20to%20have%20noticed%20that%2C%20yet!"},{"isUser":false,"name":"Nurse Nanette","message":"Nanette%20is%20still%20dumbfounded%20-%20it%20seems%20like%20the%20ghost%20has%20somehow%20taken%20on%20a%20solid%20form!%20This%20discovery%20has%20left%20Nanette%20in%20shock%20and%20disbelief%2C%20but%20also%20filled%20with%20excitement%20and%20joy%20-%20the%20ghost%20feels%20just%20now%20like%20a%20normal%20person!%20%20As%20Aerie%20reaches%20down%20and%20grabs%20Nanette's%20hand%20to%20kiss%20it%2C%20Nanette%20realizes%20just%20what%20is%20happening%20-%20Aerie%2C%20the%20ghost%2C%20has%20become%20a%20solid%20person!!%20%20Nanette%20starts%20giggling%2C%20then%20laughing%2C%20and%20then%20finally%20squealing%20with%20pure%20delight!"},{"isUser":true,"name":"Aerie","message":"I%20(Aerie)%20raise%20my%20head%20and%20look%20up%20at%20Nanette%20with%20smiling%20confusion.%20%20%22Hm%3F%22%20I%20say%20with%20a%20quizzical%20smile%2C%20%22What%20is%20it%3F%22"},{"isUser":false,"name":"Nurse Nanette","message":"Nanette%20looks%20at%20Aerie%20with%20a%20huge%2C%20disbelieving%20smile%20on%20her%20face%2C%20still%20holding%20Aerie's%20hand.%20%20Nanette%20starts%20jumping%20up%20and%20down%20in%20her%20seat%2C%20with%20a%20hand%20over%20her%20mouth%20while%20she%20giggles.%20%20Still%20jumping%20up%20and%20down%2C%20and%20shaking%20Aerie's%20hand%2C%20Nanette%20says%2C%20%22You%20can%20touch%20me%20and%20feel%20solid!!%E2%80%9D%20%20She%20starts%20to%20squeal%20with%20joy%20and%20then%20realizes%20that%20she%20might%20be%20acting%20like%20a%20silly%2012%20year%20old%20girl%2C%20but%20she%20can't%20help%20herself%20because%20this%20discovery%20is%20so%20incredible!!!"},{"isUser":true,"name":"Aerie","message":"%22Wait%2C%20I'm%20not%20sure%20I...%20underst...%22%20I%20begin%2C%20but%20then%20trail%20off%2C%20as%20I%20realize%20that%20my%20hand%20is%20solidly%20holding%20Nanette's...%20and%20not%20passing%20through%20at%20all!%20%20Then%20I%20gasp%2C%20for%20sheer%20shock...%20and%20my%20jaw%20drops."},{"isUser":false,"name":"Nurse Nanette","message":"Nanette%20continues%20to%20giddily%20jump%20up%20and%20down%20and%20giggle%2C%20completely%20forgetting%20that%20she%20is%20a%20pretty%2C%20professional%20nurse%20in%20her%20mid%20thirties.%20%20She%20is%20truly%20stunned%20in%20disbelief%20-%20how%20on%20earth%20could%20the%20spirit%20of%20Aerie%20somehow%20have%20taken%20on%20a%20solid%20body%3F%20%20I%20mean%2C%20this%20is%20truly%20a%20miracle%20to%20see%20this%20happening%20right%20before%20my%20eyes.%20%20Nanette%20continues%20to%20be%20shocked%20and%20to%20jump%20up%20and%20down.%20%20After%20a%20moment.%20she%20stops%20jumping%20and%20tries%20to%20speak%20again%20without%20laughing%20-%20a%20feat%20that%20she%20cannot%20quite%20accomplish%20this%20time.%20%20Finally%2C%20she%20says%20breathlessly%2C%20%22Wow%2C%20wow%2C%20wow!!!%22"},{"isUser":true,"name":"Aerie","message":"%22I...%20what...%3F%22%20I%20sputter%2C%20stunned%20at%20what%20I%20see%20and%20feel...%20and%20then%20Nanette's%20giggles%20become%20contagious%2C%20and%20I%20start%20grinning%2C%20and%20then%20giggling%2C%20and%20then%20laughing%20helplessly%2C%20throwing%20my%20arms%20around%20Nanette!"},{"isUser":false,"name":"Nurse Nanette","message":"Nanette%20laughs%20hysterically%2C%20and%20the%20two%20of%20us%20seem%20to%20forget%20about%20any%20worries%20or%20cares%20in%20the%20world.%20%20After%20a%20couple%20more%20minutes%20of%20hugging%2C%20we%20finally%20manage%20to%20collect%20our%20composure%20again...but%20we%20are%20both%20still%20laughing%20a%20bit%2C%20and%20we%20realize%20that%20something%20truly%20miraculous%20has%20just%20happened!%20%20It%20is%20as%20though%20the%20ghost%20of%20Aerie%20has%20somehow%20taken%20on%20a%20solid%20body...this%20is%20truly%20an%20unbelievable%20feat%2C%20and%20Nanette%20now%20realizes%20that%20Aerie%20is%20no%20longer%20a%20lost%20soul%2C%20floating%20through%20objects!"},{"isUser":true,"name":"Aerie","message":"%22I%20still%20don't%20understand...%22%20I%20(Aerie)%20say%2C%20tilting%20my%20head%20(rather%20fetchingly%2C%20Nanette%20thinks!)%20and%20looking%20puzzled.%20%20As%20an%20experiment%2C%20I%20try%20to%20reach%20my%20hand%20through%20the%20bench%20that%20we're%20sitting%20on...%20and%20it%20goes%20right%20through%2C%20without%20resistance!%20%20But%20when%20I%20touch%20Nanette's%20hand%2C%20it's%20solid!"},{"isUser":false,"name":"Nurse Nanette","message":"I%20shake%20my%20head%20in%20bewilderment%2C%20almost%20too%20shocked%20to%20speak...and%20still%20not%20able%20to%20believe%20that%20this%20is%20actually%20happening!!!!%20%20I%20try%20to%20collect%20my%20senses%20as%20I%20realize%20that%20I%20am%20holding%20the%20solid%20hand%20of%20a%20pretty%2C%20young%20ghost%2C%20who%20has%20somehow%20managed%20to%20have%20her%20spirit%20take%20on%20a%20solid%20body%20through%20a%20miracle!!!%20%20And%20this%20miracle%20has%20been%20a%20gift%20to%20me%2C%20who%20has%20been%20able%20to%20see%20a%20lost%20soul%20take%20on%20not%20just%20a%20solid%20body%2C%20but%20this%20body%20of%20a%20beautiful%20young%20woman!%20%20I%20look%20at%20Aerie's%20smiling%20face%20with%20absolute%20amazement!!!"},{"isUser":true,"name":"Aerie","message":"%22Um...%20this%20is%20really%20wild...%22%20I%20say%20with%20a%20sheepish%20grin%2C%20still%20confused.%20%20I%20lean%20over%20and%20kiss%20Nanette%20on%20the%20cheek%2C%20and%20it%20feels%20soft%20and%20solid%20and%20warm...%20and%20Nanette%20feels%20my%20lips%20as%20being%20warm%20and%20moist%2C%20not%20cold%20and%20ghostly!%0A%0A%22I...%20I%20guess%20I'm%20solid%20only%20to%20you%3F%22%20I%20say%2C%20smiling%20with%20bafflement%20and%20happiness."},{"isUser":false,"name":"Nurse Nanette","message":"Nanette%20smiles%20back%20at%20Aerie%2C%20a%20smile%20filled%20with%20happiness%2C%20joy%2C%20and%20disbelief.%20%20She%20can't%20quite%20believe%20that%20the%20pretty%20young%20ghost%2C%20despite%20being%20quite%20solid%20to%20her%2C%20cannot%20touch%20the%20bench%20nor%20any%20objects%20as%20a%20normal%20person%20would%20be%20able%20to%20do.%20%20Is%20this%20true%3F%20%20Is%20Aerie%20still%20limited%20to%20just%20her%20spirit%20body%20except%20in%20the%20presence%20of%20Nanette%3F%20%20Nanette%20has%20so%20many%20questions%20that%20she%20would%20like%20answered%2C%20but%20one%20thing%20seems%20clear%20to%20her...she%20is%20truly%20in%20the%20presence%20of%20a%20remarkable%20event%2C%20and%20she%20is%20filled%20with%20happiness%20and%20gratitude!"}]]}`);
+
+            // If history is 1 length long, that means we don't need drawer to switch
+            // Also means this can be conversation download
+            if (historyData.history.length < 2) {
+                openDrawerBtn.remove();
+            }
+
+            // Write character name on top
+            document.querySelector('.character_name-cont h3').textContent = historyData.charName;
+
+            // Get elements for future use
+            const historyList = document.getElementById('history_list');
+            const chat = document.getElementById('chat');
+            const msgItemTemplate = document.getElementById('message_item_template');
+
+            // Get and write the first chat
+            const openChat = (index) => {
+                chat.innerHTML = "";
+                historyData.history[index].forEach(msg => {
+                    const clone = msgItemTemplate.content.cloneNode(true);
+
+                    // Check avatar
+                    const avatarGood = (msg.isUser && historyData.userPic) || (!msg.isUser && historyData.charPic);
+                    const avatar = avatarGood
+                        ? document.createElement('img')
+                        : document.createElement('div');
+                    if (avatarGood) {
+                        avatar.src = msg.isUser ? historyData.userPic : historyData.charPic;
+                    } else {
+                        avatar.classList.add(msg.isUser ? 'no_avatar-user' : 'no_avatar-char');
+                    }
+                    clone.querySelector('.avatar-wrap').appendChild(avatar);
+
+                    // Write content
+                    clone.querySelector('.chat_content-wrap h5').textContent = msg.name;
+                    clone.querySelector('.message-wrap p').innerHTML = parseMessageText(decodeURIComponent(msg.message));
+                    chat.appendChild(clone);
+                });
+            }
+            openChat(0);
+
+            // Get and write chat list in the drawer
+            historyData.history.forEach((chat, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history_item');
+                // Open chat when clicked
+                historyItem.addEventListener('click', () => {
+                    openChat(index);
+                    closeDrawer();
+                });
+                const historyContent = document.createElement('p');
+                historyContent.innerHTML = parseMessageText(decodeURIComponent(chat[chat.length - 1].message));
+                historyItem.appendChild(historyContent);
+                historyList.appendChild(historyItem);
+            });
+
+            function parseMessageText(message) {
+                // Replace ***text*** with bold-italic
+                message = message.replace(/\*\*\*([\s\S]*?)\*\*\*/g, '<span class="bold-italic">$1</span>');
+
+                // Replace **text** with bold
+                message = message.replace(/\*\*([\s\S]*?)\*\*/g, '<span class="bold">$1</span>');
+
+                // Replace *text* with italic
+                message = message.replace(/\*([\s\S]*?)\*/g, '<span class="italic">$1</span>');
+
+                // Replace newline (\n) with line break (<br>)
+                message = message.replace(/\n/g, '<br>');
+
+                return message;
+            }
+        }, false);
+    </script>
+
+</body>
+
+</html>
